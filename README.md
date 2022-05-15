@@ -1,3 +1,7 @@
+# About This App
+
+This is a simple app that interfaces with the Imgur API to query relevant photos based on user entered text query
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
