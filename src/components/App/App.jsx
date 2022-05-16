@@ -1,6 +1,5 @@
 import {
   AutoComplete,
-  Input,
   Button,
   Tooltip,
   Alert,
@@ -46,10 +45,8 @@ export default function App() {
    *
    * @param alteredUrl url with optional params
    */
-  async function onImageSearch(alteredUrl) {
-    let usedUrl;
-    alteredUrl ? (usedUrl = url + userText) : (usedUrl = alteredUrl);
-    let response = await fetch(usedUrl, {
+  async function onImageSearch() {
+    let response = await fetch( url + userText, {
       headers: {
         Authorization: "Client-ID " + authId,
       },
@@ -86,7 +83,7 @@ export default function App() {
   /**
    * for updating the page to use the updated url, hence updating images displayed
    */
-  function updatePage() {
+  async function updatePage() {
     let newUrl =
       "https://api.imgur.com/3/gallery/search/{" +
       sort.current +
@@ -94,10 +91,27 @@ export default function App() {
       imgurWindow.current +
       "}/{" +
       page.current +
-      "}?q=" +
-      userText;
+      "}?q=";
     setUrl(newUrl);
-    onImageSearch(newUrl);
+   
+    let response = await fetch( newUrl + userText, {
+      headers: {
+        Authorization: "Client-ID " + authId,
+      },
+    });
+
+    //error checking
+    if (!response.ok) {
+      setLoadErrorMessage(
+        "Failed to load requested images with followingError: " +
+          response.status
+      );
+    }
+
+    //convert to json and extract data
+    let json = await response.json();
+    let imagesArr = json.data;
+    setLoadedImages(imagesArr);
   }
 
   return (
@@ -192,7 +206,7 @@ export default function App() {
           }}
         />
       </header>
-      {loadedImages ? (
+      {loadedImages.length > 0 ? (
         <div className="App-imageGrid">
           <Divider orientation="left"></Divider>
 
