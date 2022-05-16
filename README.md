@@ -2,6 +2,10 @@
 
 This is a simple app that interfaces with the Imgur API to query relevant photos based on user entered text query
 
+## 429 Error on API call:
+
+use "http://0.0.0.0:3000/" Imgur rejects localhost request headers
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
