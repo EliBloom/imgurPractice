@@ -2,14 +2,9 @@ import React from "react";
 import "@testing-library/jest-dom/extend-expect";
 import { render, fireEvent, screen } from "@testing-library/react";
 import App from "../components/App";
+import userEvent from "@testing-library/user-event";
 
-// test("renders learn react link", () => {
-//   render(<App />);
-//   const linkElement = screen.getByText("Search Image...");
-//   expect(linkElement).toBeInTheDocument();
-// });
-
-describe("Basic Calculator Test", () => {
+describe("Basic Imgur API App Test", () => {
   delete window.matchMedia;
   window.matchMedia = (query) => ({
     matches: false,
@@ -22,8 +17,8 @@ describe("Basic Calculator Test", () => {
     dispatchEvent: jest.fn(),
   });
 
-  describe("Calculator UI Functionality", () => {
-    test("The buttons of the Basic Calculator should be rendered", () => {
+  describe("Testing basic rendering", () => {
+    test("The search box should be rendered into the app.", () => {
       render(<App />);
       const input = screen.getByText("Search Image...");
       expect(input).toBeInTheDocument();
