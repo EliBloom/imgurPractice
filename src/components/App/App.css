@@ -8,6 +8,11 @@
   min-height: 10vh;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding: 20px;
+}
+.App-setPage {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .App-autoComplete {
@@ -29,5 +34,4 @@
 
 .gutter-box {
   padding: 8px 0;
-  background: #00a0e9;
 }

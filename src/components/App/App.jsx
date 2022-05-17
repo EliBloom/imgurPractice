@@ -46,9 +46,10 @@ export default function App() {
    * @param alteredUrl url with optional params
    */
   async function onImageSearch() {
-    let response = await fetch( url + userText, {
+    let response = await fetch(url + userText, {
       headers: {
         Authorization: "Client-ID " + authId,
+        "Content-Type": "application/json",
       },
     });
 
@@ -62,7 +63,15 @@ export default function App() {
 
     //convert to json and extract data
     let json = await response.json();
-    let imagesArr = json.data;
+    let imagesArr = json.data.map((data) => {
+      if (data.images?.length > 0) {
+        let imageUrl = data.images[0].link;
+        if (imageUrl && !imageUrl.includes("mp4")) {
+          return imageUrl;
+        }
+      }
+    });
+
     setLoadedImages(imagesArr);
   }
 
@@ -93,8 +102,8 @@ export default function App() {
       page.current +
       "}?q=";
     setUrl(newUrl);
-   
-    let response = await fetch( newUrl + userText, {
+
+    let response = await fetch(newUrl + userText, {
       headers: {
         Authorization: "Client-ID " + authId,
       },
@@ -110,7 +119,14 @@ export default function App() {
 
     //convert to json and extract data
     let json = await response.json();
-    let imagesArr = json.data;
+    let imagesArr = json.data.map((data) => {
+      if (data.images?.length > 0) {
+        let imageUrl = data.images[0].link;
+        if (imageUrl && !imageUrl.includes("mp4")) {
+          return imageUrl;
+        }
+      }
+    });
     setLoadedImages(imagesArr);
   }
 
@@ -212,13 +228,15 @@ export default function App() {
 
           <Row gutter={[16, 24]}>
             {loadedImages.map((image) => {
-              return (
-                <Col className="gutter-row" span={6}>
-                  <div>
-                    <Image width={200} src={image.link} />
-                  </div>
-                </Col>
-              );
+              if (image != undefined || image != null) {
+                return (
+                  <Col className="gutter-row" span={6}>
+                    <div>
+                      <Image width={200} src={image} />
+                    </div>
+                  </Col>
+                );
+              }
             })}
           </Row>
         </div>
