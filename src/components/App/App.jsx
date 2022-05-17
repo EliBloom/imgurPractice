@@ -183,7 +183,7 @@ export default function App() {
         <Select
           className="App-selectWindow"
           defaultValue="all"
-          style={{ width: 120 }}
+          style={{ width: 120, paddingLeft: "20px", paddingRight: "20px" }}
           disabled={sort.current === "top" ? false : true}
           onChange={(selected) => {
             imgurWindow.current = selected;
@@ -200,7 +200,7 @@ export default function App() {
         <Select
           className="App-selectSort"
           defaultValue="time"
-          style={{ width: 120 }}
+          style={{ width: 120, paddingRight: "20px" }}
           onChange={(newSort) => {
             sort.current = newSort;
             updatePage();

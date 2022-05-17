@@ -10,13 +10,6 @@
   color: white;
   padding: 20px;
 }
-.App-setPage {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.App-autoComplete {
-}
 
 .App-errorMessage {
   font-weight: bolder;
