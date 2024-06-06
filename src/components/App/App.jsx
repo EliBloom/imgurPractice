@@ -10,20 +10,21 @@ import {
   InputNumber,
   Select,
 } from "antd";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import keywords from "../Utils/Keywords";
 import "./App.css";
 import "antd/dist/antd.css";
 
 /**
- * Basic app for interfacing with the Imgur API
+ * App that uses Imgur API to query for desired images
  */
 export default function App() {
-  // the options for autocomplete
-  const [options, setOptions] = useState([]);
   //user input for  Imgur gallery search
   const [userText, setUserText] = useState("");
+  //holder for ongoing typing in input
+  const ongoingText = useRef("");
+
   //the loaded images from using userText in Imgur gallery
   const [loadedImages, setLoadedImages] = useState([]);
   //error for if their is a server error for api call
@@ -39,6 +40,10 @@ export default function App() {
   const [url, setUrl] = useState("https://api.imgur.com/3/gallery/search/?q=");
   const authId = "b067d5cb828ec5a";
   const { Option } = Select;
+
+  useEffect(() => {
+    onImageSearch();
+  }, [userText]);
 
   /**
    * when enter button is pressed or search, call imgur api and fill grid with images
@@ -59,20 +64,19 @@ export default function App() {
         "Failed to load requested images with followingError: " +
           response.status
       );
-    }
-
-    //convert to json and extract data
-    let json = await response.json();
-    let imagesArr = json.data.map((data) => {
-      if (data.images?.length > 0) {
-        let imageUrl = data.images[0].link;
-        if (imageUrl && !imageUrl.includes("mp4")) {
-          return imageUrl;
+    } else {
+      let json = await response.json();
+      let imagesArr = json.data.map((data) => {
+        if (data.images?.length > 0) {
+          let imageUrl = data.images[0].link;
+          if (imageUrl && !imageUrl.includes("mp4")) {
+            return imageUrl;
+          }
         }
-      }
-    });
+      });
 
-    setLoadedImages(imagesArr);
+      setLoadedImages(imagesArr);
+    }
   }
 
   /**
@@ -115,19 +119,19 @@ export default function App() {
         "Failed to load requested images with followingError: " +
           response.status
       );
-    }
-
-    //convert to json and extract data
-    let json = await response.json();
-    let imagesArr = json.data.map((data) => {
-      if (data.images?.length > 0) {
-        let imageUrl = data.images[0].link;
-        if (imageUrl && !imageUrl.includes("mp4")) {
-          return imageUrl;
+    } else {
+      //convert to json and extract data
+      let json = await response.json();
+      let imagesArr = json.data.map((data) => {
+        if (data.images?.length > 0) {
+          let imageUrl = data.images[0].link;
+          if (imageUrl && !imageUrl.includes("mp4")) {
+            return imageUrl;
+          }
         }
-      }
-    });
-    setLoadedImages(imagesArr);
+      });
+      setLoadedImages(imagesArr);
+    }
   }
 
   return (
@@ -146,29 +150,20 @@ export default function App() {
 
       <header className="App-header">
         <AutoComplete
-          options={options}
+          options={keywords}
           className="App-autoComplete"
           style={{ width: 200 }}
+          filterOption={true}
           onSelect={onAutoCompleteSelect}
-          placeholder="Search Image..."
+          placeholder="Type Here to Search for Images..."
+          onChange={(e) => {
+            ongoingText.current = e;
+          }}
+          onSearch={() => {}}
           onKeyPress={(e) => {
             if (e.key === "Enter") {
-              onImageSearch();
+              setUserText(ongoingText.current);
             }
-          }}
-          onChange={(text) => {
-            let options = [];
-            !text
-              ? (options = [])
-              : keywords.forEach((word) => {
-                  if (word.includes(text)) {
-                    options.push({ value: word });
-                  }
-                });
-
-            // this not fast and would ideally be implemented with trie for bigger dataset
-            setOptions(options);
-            setUserText(text);
           }}
         ></AutoComplete>
 
@@ -176,7 +171,9 @@ export default function App() {
           <Button
             type="primary"
             icon={<SearchOutlined />}
-            onClick={onImageSearch}
+            onClick={() => {
+              setUserText(ongoingText.current);
+            }}
           />
         </Tooltip>
 
@@ -228,7 +225,7 @@ export default function App() {
 
           <Row gutter={[16, 24]}>
             {loadedImages.map((image) => {
-              if (image != undefined || image != null) {
+              if (image !== undefined || image != null) {
                 return (
                   <Col className="gutter-row" span={6}>
                     <div>
@@ -237,6 +234,7 @@ export default function App() {
                   </Col>
                 );
               }
+              return <></>;
             })}
           </Row>
         </div>
