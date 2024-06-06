@@ -20,6 +20,7 @@ import "antd/dist/antd.css";
  * App that uses Imgur API to query for desired images
  */
 export default function App() {
+  const [options, setOptions] = useState(keywords);
   //user input for  Imgur gallery search
   const [userText, setUserText] = useState("");
   //holder for ongoing typing in input
@@ -45,6 +46,10 @@ export default function App() {
     onImageSearch();
   }, [userText]);
 
+  //This should eventually be replaced by a api call
+  function search(userSearch) {
+    userSearch ? setOptions([...keywords]) : setOptions(keywords);
+  }
   /**
    * when enter button is pressed or search, call imgur api and fill grid with images
    *
@@ -150,7 +155,7 @@ export default function App() {
 
       <header className="App-header">
         <AutoComplete
-          options={keywords}
+          options={options}
           className="App-autoComplete"
           style={{ width: 200 }}
           filterOption={true}
@@ -159,7 +164,10 @@ export default function App() {
           onChange={(e) => {
             ongoingText.current = e;
           }}
-          onSearch={() => {}}
+          //An api call will eventually go here in order to load the suggested words from database rather than just a file and having a fixed constant number of suggestions
+          onSearch={(value) => {
+            search(value);
+          }}
           onKeyPress={(e) => {
             if (e.key === "Enter") {
               setUserText(ongoingText.current);
