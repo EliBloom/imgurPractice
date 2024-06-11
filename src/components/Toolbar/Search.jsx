@@ -17,7 +17,7 @@ import keywords from "../Utils/Keywords";
 import "antd/dist/antd.css";
 
 /**
- * App that uses Imgur API to query for desired images
+ * Search-bar component that uses Imgur API to query for desired images
  */
 export default function Search() {
   const [options, setOptions] = useState(keywords);
