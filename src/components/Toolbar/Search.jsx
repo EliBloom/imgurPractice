@@ -13,8 +13,7 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import keywords from "../Utils/Keywords";
-// import "./App.css";
-import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
 
 /**
  * Search-bar component that uses Imgur API to query for desired images
@@ -42,18 +41,19 @@ export default function Search() {
   const authId = "b067d5cb828ec5a";
   const { Option } = Select;
 
+  const text = <span>Begin the search for your hopes and dreams...</span>;
+
   useEffect(() => {
     onImageSearch();
-  }, [userText]);
+  }, [userText, url]);
 
   //This should eventually be replaced by a api call
   function search(userSearch) {
     userSearch ? setOptions([...keywords]) : setOptions(keywords);
   }
+
   /**
    * when enter button is pressed or search, call imgur api and fill grid with images
-   *
-   * @param alteredUrl url with optional params
    */
   async function onImageSearch() {
     let response = await fetch(url + userText, {
@@ -63,7 +63,6 @@ export default function Search() {
       },
     });
 
-    //error checking
     if (!response.ok) {
       setLoadErrorMessage(
         "Failed to load requested images with followingError: " +
@@ -71,16 +70,7 @@ export default function Search() {
       );
     } else {
       let json = await response.json();
-      let imagesArr = json.data.map((data) => {
-        if (data.images?.length > 0) {
-          let imageUrl = data.images[0].link;
-          if (imageUrl && !imageUrl.includes("mp4")) {
-            return imageUrl;
-          }
-        }
-      });
-
-      setLoadedImages(imagesArr);
+      handleJSON(json);
     }
   }
 
@@ -110,33 +100,26 @@ export default function Search() {
       "}/{" +
       page.current +
       "}?q=";
+
     setUrl(newUrl);
+  }
 
-    let response = await fetch(newUrl + userText, {
-      headers: {
-        Authorization: "Client-ID " + authId,
-      },
-    });
-
-    //error checking
-    if (!response.ok) {
-      setLoadErrorMessage(
-        "Failed to load requested images with followingError: " +
-          response.status
-      );
-    } else {
-      //convert to json and extract data
-      let json = await response.json();
-      let imagesArr = json.data.map((data) => {
-        if (data.images?.length > 0) {
-          let imageUrl = data.images[0].link;
+  /*
+   * Helper that handles the processing of json
+   **/
+  function handleJSON(json) {
+    let imagesArr = [];
+    json.data
+      .filter((data) => data.images?.length > 0)
+      .forEach((data) => {
+        data.images.forEach((image) => {
+          let imageUrl = image.link;
           if (imageUrl && !imageUrl.includes("mp4")) {
-            return imageUrl;
+            imagesArr.push(imageUrl);
           }
-        }
+        });
       });
-      setLoadedImages(imagesArr);
-    }
+    setLoadedImages(imagesArr);
   }
 
   return (
@@ -154,6 +137,7 @@ export default function Search() {
       )}
 
       <header className="App-header">
+        {/* Text box for entering search query */}
         <AutoComplete
           options={options}
           className="App-autoComplete"
@@ -175,7 +159,7 @@ export default function Search() {
           }}
         ></AutoComplete>
 
-        <Tooltip title="search">
+        <Tooltip title={text}>
           <Button
             type="primary"
             icon={<SearchOutlined />}
@@ -185,27 +169,33 @@ export default function Search() {
           />
         </Tooltip>
 
-        <Select
-          className="App-selectWindow"
-          defaultValue="all"
-          style={{ width: 120, paddingLeft: "20px", paddingRight: "20px" }}
-          disabled={sort.current === "top" ? false : true}
-          onChange={(selected) => {
-            imgurWindow.current = selected;
-            updatePage();
-          }}
-        >
-          <Option value="all">all</Option>
-          <Option value="year">year</Option>
-          <Option value="month">month</Option>
-          <Option value="week">week</Option>
-          <Option value="day">day</Option>
-        </Select>
+        {sort.current !== "top" ? (
+          <></>
+        ) : (
+          <Select
+            className="App-selectWindow"
+            defaultValue="all"
+            style={{
+              width: 120,
+              padding: "20px",
+            }}
+            onChange={(selected) => {
+              imgurWindow.current = selected;
+              updatePage();
+            }}
+          >
+            <Option value="all">all</Option>
+            <Option value="year">year</Option>
+            <Option value="month">month</Option>
+            <Option value="week">week</Option>
+            <Option value="day">day</Option>
+          </Select>
+        )}
 
         <Select
           className="App-selectSort"
           defaultValue="time"
-          style={{ width: 120, paddingRight: "20px" }}
+          style={{ width: 180, padding: "20px" }}
           onChange={(newSort) => {
             sort.current = newSort;
             updatePage();
